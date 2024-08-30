@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator</title>
+</head>
+<body>
+  <h1>QR Code Generator</h1>
+  <form action="/generate" method="post">
+    <input type="text" name="url" placeholder="Enter URL" required>
+    <button type="submit">Generate</button>
+  </form>
+  <br>
+  <img id="qrcode" src="" alt="QR Code" style="display: none;">
+  <br>
+  <a id="downloadLink" href="" download="qrcode.png" style="display: none;">Download QR Code</a>
+
+  <script>
+    const form = document.querySelector('form');
+    const qrcodeImg = document.getElementById('qrcode');
+    const downloadLink = document.getElementById('downloadLink');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const url = form.url.value;
+      const response = await fetch('/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `url=${encodeURIComponent(url)}`,
+      });
+      const data = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(data, 'text/html');
+      const imgSrc = doc.querySelector('img').src;
+      qrcodeImg.src = imgSrc;
+      qrcodeImg.style.display = 'block';
+      downloadLink.href = imgSrc;
+      downloadLink.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
